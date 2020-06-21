@@ -58,11 +58,11 @@
 #include "gcode/queue.h"
 
 #if ENABLED(TFT_LITTLE_VGL_UI)
-#include "lvgl/lvgl.h"
-#include "ui/inc/tft_lvgl_configuration.h"
-#include "ui/inc/draw_ready_print.h"
+#include "lvgl.h"
+#include "lcd/extui/lib/mks_ui/inc/tft_lvgl_configuration.h"
+#include "lcd/extui/lib/mks_ui/inc/draw_ui.h"
 #if ENABLED(MKS_TEST)
-#include "ui/inc/mks_hardware_test.h"
+#include "lcd/extui/lib/mks_ui/inc/mks_hardware_test.h"
 #endif
 #endif
 
@@ -259,7 +259,8 @@ millis_t max_inactive_time, // = 0
 
 void setup_killpin() {
   #if HAS_KILL
-    SET_INPUT_PULLUP(KILL_PIN);
+    if (!KILL_PIN_INVERTING) SET_INPUT_PULLUP(KILL_PIN);
+    else SET_INPUT(KILL_PIN);
   #endif
 }
 
@@ -521,7 +522,9 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     // -------------------------------------------------------------------------------
     static int killCount = 0;   // make the inactivity button a bit less responsive
     const int KILL_DELAY = 750;
-    if (!READ(KILL_PIN))
+    if (!READ(KILL_PIN) && !KILL_PIN_INVERTING)
+      killCount++;
+    else if (READ(KILL_PIN) && KILL_PIN_INVERTING)
       killCount++;
     else if (killCount > 0)
       killCount--;
@@ -680,9 +683,7 @@ void idle(
     max7219.idle_tasks();
   #endif
 
-  #if DISABLED(TFT_LITTLE_VGL_UI)
   ui.update();
-  #endif
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     gcode.host_keepalive();
@@ -757,7 +758,7 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
   SERIAL_ERROR_MSG(STR_ERR_KILLED);
 
   #if HAS_DISPLAY
-    ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
+       ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
   #else
     UNUSED(lcd_error);
     UNUSED(lcd_component);
@@ -979,8 +980,7 @@ void setup() {
 
   SETUP_RUN(ui.init());
   SETUP_RUN(ui.reset_status());       // Load welcome message early. (Retained if no errors exist.)
-
-  #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
+  #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN) 
     SETUP_RUN(ui.show_bootscreen());
   #endif
 
@@ -1207,6 +1207,9 @@ void loop() {
     queue.advance();
 
     endstops.event_handler();
+	#if ENABLED(TFT_LITTLE_VGL_UI)
+   printer_state_polling(); 
+	#endif
 
   } while (ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }
