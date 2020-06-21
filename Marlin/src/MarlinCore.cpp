@@ -57,6 +57,15 @@
 #include "gcode/parser.h"
 #include "gcode/queue.h"
 
+#if ENABLED(TFT_LITTLE_VGL_UI)
+#include "lvgl/lvgl.h"
+#include "ui/inc/tft_lvgl_configuration.h"
+#include "ui/inc/draw_ready_print.h"
+#if ENABLED(MKS_TEST)
+#include "ui/inc/mks_hardware_test.h"
+#endif
+#endif
+
 #if ENABLED(TOUCH_BUTTONS)
   #include "feature/touch/xpt2046.h"
 #endif
@@ -671,7 +680,9 @@ void idle(
     max7219.idle_tasks();
   #endif
 
+  #if DISABLED(TFT_LITTLE_VGL_UI)
   ui.update();
+  #endif
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     gcode.host_keepalive();
@@ -729,6 +740,10 @@ void idle(
 
   #if ENABLED(POLL_JOG)
     joystick.inject_jog_moves();
+  #endif
+
+  #if ENABLED(TFT_LITTLE_VGL_UI)
+	LV_TASK_HANDLER();
   #endif
 }
 
@@ -1155,6 +1170,10 @@ void setup() {
 
   #if ENABLED(MAX7219_DEBUG)
     SETUP_RUN(max7219.init());
+  #endif
+
+  #if ENABLED(TFT_LITTLE_VGL_UI)
+  tft_lvgl_init();
   #endif
 
   marlin_state = MF_RUNNING;

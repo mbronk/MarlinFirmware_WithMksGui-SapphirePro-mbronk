@@ -39,6 +39,12 @@
 #define DISABLE_DEBUG
 
 //
+// Note: MKS Robin board is using SPI2 interface.
+//
+//#define SPI_MODULE 2
+#define ENABLE_SPI2
+
+//
 // Limit Switches
 //
 #define X_STOP_PIN                          PA15
@@ -120,11 +126,19 @@
  * to let the bootloader init the screen.
  */
 #if ENABLED(FSMC_GRAPHICAL_TFT)
+  //@
+  //#define DOGLCD_MOSI -1 // prevent redefine Conditionals_post.h
+  //#define DOGLCD_SCK -1
+
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
 
   #define LCD_RESET_PIN                     PC6   // FSMC_RST
+  #define FSMC_DMA_DEV DMA2
+  #define FSMC_DMA_CHANNEL DMA_CH5
   #define NO_LCD_REINIT                           // Suppress LCD re-initialization
+  //#define LCD_RESET_PIN      PF6
+  //#define NO_LCD_REINIT             // Suppress LCD re-initialization
 
   #define LCD_BACKLIGHT_PIN                 PD13
 
@@ -134,4 +148,12 @@
     #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
     #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
   #endif
+#endif
+
+#define SPI_FLASH
+#if ENABLED(SPI_FLASH)
+	#define 	W25QXX_CS_PIN		PB12
+	#define 	W25QXX_MOSI_PIN		PB15
+	#define 	W25QXX_MISO_PIN		PB14
+	#define 	W25QXX_SCK_PIN		PB13
 #endif

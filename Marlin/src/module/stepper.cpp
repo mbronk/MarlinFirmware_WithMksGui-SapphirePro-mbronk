@@ -1361,6 +1361,14 @@ void Stepper::isr() {
   do {
     // Enable ISRs to reduce USART processing latency
     ENABLE_ISRS();
+    #if ENABLED(MKS_TEST)
+    digitalWrite(X_STEP_PIN, HIGH);
+    digitalWrite(Y_STEP_PIN, HIGH);
+    digitalWrite(Z_STEP_PIN, HIGH);
+    digitalWrite(E0_STEP_PIN, HIGH);
+    digitalWrite(E1_STEP_PIN, HIGH);
+    digitalWrite(E2_STEP_PIN, HIGH);
+    #endif
 
     if (!nextMainISR) pulse_phase_isr();                            // 0 = Do coordinated axes Stepper pulses
 
@@ -1448,6 +1456,14 @@ void Stepper::isr() {
      * is less than the current count due to something preempting between the
      * read and the write of the new period value).
      */
+    #if ENABLED(MKS_TEST)
+     digitalWrite(X_STEP_PIN, LOW);
+     digitalWrite(Y_STEP_PIN, LOW);
+     digitalWrite(Z_STEP_PIN, LOW);
+     digitalWrite(E0_STEP_PIN, LOW);
+     digitalWrite(E1_STEP_PIN, LOW);
+     digitalWrite(E2_STEP_PIN, LOW);
+    #endif
     DISABLE_ISRS();
 
     /**

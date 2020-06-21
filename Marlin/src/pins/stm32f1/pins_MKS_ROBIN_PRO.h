@@ -103,6 +103,16 @@
 #ifndef E2_CS_PIN
   #define E2_CS_PIN                         PG9
 #endif
+
+//SPI FLASH
+#define SPI_FLASH
+
+#if ENABLED(SPI_FLASH)
+	#define 	W25QXX_CS_PIN		PB12
+	#define 	W25QXX_MOSI_PIN		PB15
+	#define 	W25QXX_MISO_PIN		PB14
+	#define 	W25QXX_SCK_PIN		PB13
+#endif
 //
 // Software SPI pins for TMC2130 stepper drivers
 //
@@ -218,6 +228,10 @@
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
 
+  #define LCD_USE_DMA_FSMC //
+  #define FSMC_DMA_DEV DMA2
+  #define FSMC_DMA_CHANNEL DMA_CH5
+
   #define LCD_RESET_PIN                     PF6
   #define NO_LCD_REINIT                           // Suppress LCD re-initialization
 
@@ -225,6 +239,15 @@
 
   #if ENABLED(TOUCH_BUTTONS)
     #define TOUCH_CS_PIN                    PA7
+    #define TOUCH_SCK_PIN    PB13
+    #define TOUCH_MOSI_PIN   PB15
+    #define TOUCH_MISO_PIN   PB14
+    #if ENABLED(MKS_TEST)
+    #define BEEPER_PIN       PC5
+    #define WIFI_IO2_PIN       PC7
+    #define FIL_RUNOUT_2_PIN     PE6   // MT_DET2
+    #define FIL_RUNOUT_3_PIN     PG14  // MT_DET3
+    #endif
   #else
     #define BEEPER_PIN                      PC5
     #define BTN_ENC                         PG2
