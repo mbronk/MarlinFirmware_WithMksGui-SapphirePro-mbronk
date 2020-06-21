@@ -41,9 +41,9 @@
 //
 // EEPROM
 //
-//#define FLASH_EEPROM_EMULATION
+#if NO_EEPROM_SELECTED
 #define SDCARD_EEPROM_EMULATION
-
+#endif
 //
 // Note: MKS Robin board is using SPI2 interface.
 //
@@ -95,11 +95,24 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PC3   // HEATER1
-#define HEATER_1_PIN                        PB0   // HEATER2
-#define HEATER_BED_PIN                      PA0   // HOT BED
-
-#define FAN_PIN                             PB1   // FAN
+#ifndef HEATER_0_PIN
+  #define HEATER_0_PIN                      PC3
+#endif
+#if HOTENDS == 1
+  #ifndef FAN1_PIN
+    #define FAN1_PIN                        PB0
+  #endif
+#else
+  #ifndef HEATER_1_PIN
+    #define HEATER_1_PIN                    PB0
+  #endif
+#endif
+#ifndef FAN_PIN
+  #define FAN_PIN                           PB1   // FAN
+#endif
+#ifndef HEATER_BED_PIN
+  #define HEATER_BED_PIN                    PA0
+#endif
 
 //
 // Thermocouples
@@ -113,15 +126,9 @@
 //#define POWER_LOSS_PIN                    PA2   // PW_DET
 //#define PS_ON_PIN                         PA3   // PW_OFF
 
-//#define SUICIDE_PIN 						            PB2     // Enable MKSPWC support ROBIN NANO v1.2 ONLY
-//#define SUICIDE_PIN_INVERTING 			        false
 
-//#define KILL_PIN 						                PA2     // Enable MKSPWC support ROBIN NANO v1.2 ONLY
-//#define KILL_PIN_INVERTING 				          true     // Enable MKSPWC support ROBIN NANO v1.2 ONLY
 
-//#define SERVO0_PIN                          PA8   // Enable BLTOUCH support ROBIN NANO v1.2 ONLY
 
-//#define LED_PIN                             PB2
 
 #define MT_DET_1_PIN				PA4
 #define MT_DET_PIN_INVERTING		false
@@ -134,7 +141,9 @@
 #endif
 
 #define SDIO_SUPPORT
+#define SDIO_CLOCK                       4500000   // 4.5 MHz
 #define SD_DETECT_PIN                       PD12
+#define ONBOARD_SD_CS_PIN                   PC11
 
 //
 // LCD / Controller
@@ -217,8 +226,6 @@
   #endif//HAS_SPI_LCD
 
 #else
-  #if ENABLED(TFT_LITTLE_VGL_UI)
-	//FSMC LCD
 	#define FSMC_CS_PIN				PD7    // NE4
 	#define FSMC_RS_PIN				PD11  // A0
 
@@ -233,7 +240,7 @@
 
 #endif// SPI_GRAPHICAL_TFT
 
-#if ENABLED(FSMC_GRAPHICAL_TFT)
+#elif ENABLED(FSMC_GRAPHICAL_TFT)
   //@
   //#define DOGLCD_MOSI -1 // prevent redefine Conditionals_post.h
   //#define DOGLCD_SCK -1
@@ -256,6 +263,7 @@
     #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
     #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
   #endif
+
 #endif
 
 #define SPI_FLASH
